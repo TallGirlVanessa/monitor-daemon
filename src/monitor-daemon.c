@@ -17,7 +17,7 @@ void signal_handler(int signo) {
 }
 
 const int MAX_SSID_LEN = 50;
-const int MAX_INFO_LINE_LEN = 500;
+const int MAX_IP_LEN = 50;
 
 void get_SSID() {
     FILE *get_ssid_fp = popen("networksetup -getairportnetwork en0 | awk -F\": \" '{print $2}'", "r");
@@ -32,15 +32,21 @@ void get_SSID() {
 }
 
 void get_network_info() {
-    FILE *get_network_fp = popen("networksetup -getinfo 'Wi-Fi'", "r");
-    char info_line[MAX_INFO_LINE_LEN];
-    while (fgets(info_line, MAX_INFO_LINE_LEN, get_network_fp) != NULL){
-        printf("%s", info_line);
-    }
-    int status = pclose(get_network_fp);
+    FILE *get_ip_fp = popen("networksetup -getinfo 'Wi-Fi' | grep 'IP address' | awk -F\": \" '{print $2}'", "r");
+    char ip[MAX_IP_LEN];
+    ip[0] = 0;
+    fgets(ip, MAX_IP_LEN, get_ip_fp);
+    ip[strcspn(ip, "\n")] = 0;
+    int status = pclose(get_ip_fp);
     if (status == -1) {
         perror("pclose error");
     }
+    if (strlen(ip) > 0) {
+        printf("Connected. IP: '%s'\n", ip);
+    } else {
+        printf("Disconnected\n");
+    }
+
 }
 
 int main (int argc, const char * argv[]) {
