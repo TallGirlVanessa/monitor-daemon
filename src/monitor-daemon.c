@@ -40,6 +40,10 @@ const int MAX_IP_LEN = 50;
 
 char *STARRY_WIFI = "Bill Wi The Science Fi_5";
 
+bool ssid_match = false;
+bool connected = false;
+bool monitoring = false;
+
 void get_SSID() {
     char formatted_time[DATETIME_LENGTH + 1];
     formatted_time[DATETIME_LENGTH] = 0;
@@ -60,8 +64,11 @@ void get_SSID() {
     }
     printf("%s Current SSID: '%s'\n", formatted_time, ssid);
     if (strcmp(ssid, STARRY_WIFI) != 0) {
-        printf("%s Not Starry Wi-Fi, shutting down\n", formatted_time);
-        exit(0);
+        printf("%s Not Starry Wi-Fi\n", formatted_time);
+        ssid_match = false;
+    } else {
+        printf("%s Starry Wi-Fi\n", formatted_time);
+        ssid_match = true;
     }
 }
 
@@ -84,9 +91,10 @@ void get_network_info() {
     }
     if (strlen(ip) > 0) {
         printf("%s Connected. IP: '%s'\n", formatted_time, ip);
+        connected = true;
     } else {
-        printf("%s Disconnected, shutting down\n", formatted_time);
-        exit(0);
+        printf("%s Disconnected\n", formatted_time);
+        connected = false;
     }
 
 }
@@ -107,6 +115,24 @@ int main (int argc, const char * argv[]) {
             printf("%s %s\n", handler_formatted_time, name);
             get_SSID();
             get_network_info();
+            time_for_log(handler_formatted_time);
+            if (ssid_match && connected) {
+                printf("%s SSID match & connected. ", handler_formatted_time);
+                if (monitoring) {
+                    printf("Monitoring already enabled\n");
+                } else {
+                    printf("Enable monitoring\n");
+                    monitoring = true;
+                }
+            } else {
+                printf("%s SSID mismatch or not connected. ", handler_formatted_time);
+                if (monitoring) {
+                    printf("Disable monitoring\n");
+                    monitoring = false;
+                } else {
+                    printf("Monitoring already disabled\n");
+                }
+            }
             fflush(stdout);
             });
     time_for_log(formatted_time);
