@@ -38,7 +38,12 @@ void signal_handler(int signo) {
 const int MAX_SSID_LEN = 50;
 const int MAX_IP_LEN = 50;
 
+char *STARRY_WIFI = "Bill Wi The Science Fi_5";
+
 void get_SSID() {
+    char formatted_time[DATETIME_LENGTH + 1];
+    formatted_time[DATETIME_LENGTH] = 0;
+    time_for_log(formatted_time);
     FILE *get_ssid_fp = popen("networksetup -getairportnetwork en0 | awk -F\": \" '{print $2}'", "r");
     if (get_ssid_fp == 0) {
         perror("popen error");
@@ -53,10 +58,17 @@ void get_SSID() {
         perror("pclose error");
         exit(1);
     }
-    printf("Current SSID: '%s'\n", ssid);
+    printf("%s Current SSID: '%s'\n", formatted_time, ssid);
+    if (strcmp(ssid, STARRY_WIFI) != 0) {
+        printf("%s Not Starry Wi-Fi, shutting down\n", formatted_time);
+        exit(0);
+    }
 }
 
 void get_network_info() {
+    char formatted_time[DATETIME_LENGTH + 1];
+    formatted_time[DATETIME_LENGTH] = 0;
+    time_for_log(formatted_time);
     FILE *get_ip_fp = popen("networksetup -getinfo 'Wi-Fi' | grep 'IP address' | awk -F\": \" '{print $2}'", "r");
     if (get_ip_fp == 0) {
         perror("popen error");
@@ -71,9 +83,10 @@ void get_network_info() {
         perror("pclose error");
     }
     if (strlen(ip) > 0) {
-        printf("Connected. IP: '%s'\n", ip);
+        printf("%s Connected. IP: '%s'\n", formatted_time, ip);
     } else {
-        printf("Disconnected\n");
+        printf("%s Disconnected, shutting down\n", formatted_time);
+        exit(0);
     }
 
 }
@@ -85,18 +98,19 @@ int main (int argc, const char * argv[]) {
     printf("%s Starting\n", formatted_time);
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
-    xpc_set_event_stream_handler("com.apple.notifyd.matching", 0, ^(xpc_object_t event) {
+    dispatch_queue_t queue = dispatch_get_main_queue();
+    xpc_set_event_stream_handler("com.apple.notifyd.matching", queue, ^(xpc_object_t event) {
+            char handler_formatted_time[DATETIME_LENGTH + 1];
+            handler_formatted_time[DATETIME_LENGTH] = 0;
+            time_for_log(handler_formatted_time);
             const char *name = xpc_dictionary_get_string(event, XPC_EVENT_KEY_NAME);
-            printf("%s\n", name);
+            printf("%s %s\n", handler_formatted_time, name);
             get_SSID();
             get_network_info();
+            fflush(stdout);
             });
     time_for_log(formatted_time);
     printf("%s Initialized\n", formatted_time);
     fflush(stdout);
-    while (1) {
-        sleep(1);
-        printf("Doing a thing\n");
-        fflush(stdout);
-    };
+    dispatch_main();
 }
