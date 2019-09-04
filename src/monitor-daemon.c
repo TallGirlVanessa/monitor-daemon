@@ -22,6 +22,7 @@ const int MAX_IP_LEN = 50;
 void get_SSID() {
     FILE *get_ssid_fp = popen("networksetup -getairportnetwork en0 | awk -F\": \" '{print $2}'", "r");
     char ssid[MAX_SSID_LEN];
+    ssid[0] = 0;
     fgets(ssid, MAX_SSID_LEN, get_ssid_fp);
     ssid[strcspn(ssid, "\n")] = 0;
     int status = pclose(get_ssid_fp);
