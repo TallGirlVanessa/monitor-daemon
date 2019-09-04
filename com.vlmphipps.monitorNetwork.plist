@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.vlmphipps.monitorNetwork</string>
+        <key>ProcessType</key>
+        <string>Background</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/Users/vanessaphipps/Projects/vlmp/monitor-daemon/bin/monitor-daemon</string>
+        </array>
+        <key>StandardOutPath</key>
+        <string>/Users/vanessaphipps/logs/monitorNetwork.log</string>
+        <key>StandardErrorPath</key>
+        <string>/Users/vanessaphipps/logs/monitorNetwork.log</string>
+        <key>LaunchEvents</key>
+        <dict>
+            <key>com.apple.notifyd.matching</key>
+            <dict>
+                <key>Network change</key>
+                <dict>
+                    <key>Notification</key>
+                    <string>com.apple.system.config.network_change</string>
+                </dict>
+            </dict>
+        </dict>
+    </dict>
+</plist>

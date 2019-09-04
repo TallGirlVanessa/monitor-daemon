@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.vlmphipps.monitorNetwork</string>
+        <key>ProcessType</key>
+        <string>Background</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/usr/local/bin/bash</string>
+            <string>-c</string>
+            <string><![CDATA[mkdir -p /Users/vanessaphipps/logs/$(date -u +%F) && /Users/vanessaphipps/local/bin/monitor-timeouts |& tee /Users/vanessaphipps/logs/$(date -u +%F)/$(date -u +%FT%H%M%S).log]]></string>
+        </array>
+        <key>StartInterval</key>
+        <integer>60</integer>
+        <key>StandardOutPath</key>
+        <string>/Users/vanessaphipps/logs/monitorNetwork.log</string>
+        <key>StandardErrorPath</key>
+        <string>/Users/vanessaphipps/logs/monitorNetwork.log</string>
+        <key>LaunchEvents</key>
+        <dict>
+            <key>com.apple.notifyd.matching</key>
+            <dict>
+                <key>com.apple.system.config.network_change</key>
+                <dict>
+                    <key>Notification</key>
+                    <string>com.apple.system.config.network_change</string>
+                </dict>
+            </dict>
+        </dict>
+    </dict>
+</plist>
